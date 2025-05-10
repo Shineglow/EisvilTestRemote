@@ -8,19 +8,19 @@ namespace EisvilTest.Scripts.CharacterSystem
         public bool IsInteractionAvailable { get; set; }
         [SerializeField] private CharacterController characterController;
 
-        private Vector2 _moveDirection;
+        private Vector3 _moveDirection;
         
-        public void Move(Vector2 moveDirection)
+        public void Move(Vector3 moveDirection)
         {
             _moveDirection = moveDirection;
         }
 
         private void FixedUpdate()
         {
-            if (_moveDirection != Vector2.zero)
+            if (_moveDirection != Vector3.zero)
             {
                 characterController.SimpleMove(_moveDirection);
-                _moveDirection = Vector2.zero;
+                _moveDirection = Vector3.zero;
             }
         }
     }

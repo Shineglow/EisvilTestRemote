@@ -35,28 +35,28 @@ namespace EisvilTest.Scripts.Triggers
                 if (((1 << other.gameObject.layer) & actionData.layerMask) != 0
                     && (actionData.predicate == null || actionData.predicate(other.gameObject)))
                 {
-                    actionData.action();
+                    actionData.action(other.gameObject);
                 }
             }
         }
         
-        public void AddActionToTriggerEnter(Action act, int layerMask = -1, Func<GameObject, bool> predicate = null)
+        public void AddActionToTriggerEnter(Action<GameObject> act, int layerMask = -1, Func<GameObject, bool> predicate = null)
         {
             AddDataToCollection(triggerEnterActions, act, layerMask, predicate);
         }
 
-        public void AddActionToTriggerExit(Action act, int layerMask = -1, Func<GameObject, bool> predicate = null)
+        public void AddActionToTriggerExit(Action<GameObject> act, int layerMask = -1, Func<GameObject, bool> predicate = null)
         {
             AddDataToCollection(triggerExitActions, act, layerMask, predicate);
         }
 
-        public void AddActionToBoth(Action actEnter, Action actExit, int layerMask = -1, Func<GameObject, bool> predicate = null)
+        public void AddActionToBoth(Action<GameObject> actEnter, Action<GameObject> actExit, int layerMask = -1, Func<GameObject, bool> predicate = null)
         {
             AddActionToTriggerEnter(actEnter, layerMask, predicate);
             AddActionToTriggerExit(actExit, layerMask, predicate);
         }
 
-        private void AddDataToCollection(List<ActionData> collection, Action act, int layerMask, Func<GameObject, bool> predicate)
+        private void AddDataToCollection(List<ActionData> collection, Action<GameObject> act, int layerMask, Func<GameObject, bool> predicate)
         {
             collection.Add(new ActionData()
             {
@@ -66,27 +66,27 @@ namespace EisvilTest.Scripts.Triggers
             });
         }
 
-        public void RemoveActionFromTriggerEnter(Action act)
+        public void RemoveActionFromTriggerEnter(Action<GameObject> act)
         {
             if (RemoveActionFromCollection(triggerEnterActions, act)) return;
 
             Debug.LogWarning($"Attempts to delete an object that is not in the collection {nameof(triggerEnterActions)}.");
         }
 
-        public void RemoveActionFromTriggerExit(Action act)
+        public void RemoveActionFromTriggerExit(Action<GameObject> act)
         {
             if (RemoveActionFromCollection(triggerExitActions, act)) return;
 
             Debug.LogWarning($"Attempts to delete an object that is not in the collection {nameof(triggerExitActions)}.");
         }
         
-        public void RemoveActionFromBoth(Action actEnter, Action actExit)
+        public void RemoveActionFromBoth(Action<GameObject> actEnter, Action<GameObject> actExit)
         {
             RemoveActionFromTriggerEnter(actEnter);
             RemoveActionFromTriggerExit(actExit);
         }
         
-        private bool RemoveActionFromCollection(List<ActionData> collection, Action act)
+        private bool RemoveActionFromCollection(List<ActionData> collection, Action<GameObject> act)
         {
             for (int i = 0; i < collection.Count; i++)
             {
@@ -102,7 +102,7 @@ namespace EisvilTest.Scripts.Triggers
 
     public struct ActionData
     {
-        public Action action;
+        public Action<GameObject> action;
         public LayerMask layerMask;
         public Func<GameObject, bool> predicate;
     }

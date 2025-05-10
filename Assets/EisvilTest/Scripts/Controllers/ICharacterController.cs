@@ -1,5 +1,3 @@
-using EisvilTest.Scripts.PlayerSystem;
-
 namespace EisvilTest.Scripts.CharacterSystem
 {
     public interface ICharacterController

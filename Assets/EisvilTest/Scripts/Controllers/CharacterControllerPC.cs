@@ -25,7 +25,7 @@ namespace EisvilTest.Scripts.PlayerSystem
             var moveDirection = _playerControls.Move.ReadValue<Vector2>();
             if (moveDirection != Vector2.zero)
             {
-                _controllable.Move(moveDirection);
+                _controllable.Move(moveDirection.XYtoXZ());
             }
 
             var fire = _playerControls.Fire.WasPerformedThisFrame();
