@@ -1,50 +1,76 @@
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using EisvilTest.Scripts.Configuration.Characters;
-using System.Collections;
+using EisvilTest.Scripts.Configuration.Weapon;
+using EisvilTest.Scripts.Input;
+using EisvilTest.Scripts.Weapon;
 using UnityEngine;
 
 namespace EisvilTest.Scripts.CharacterSystem
 {
-    public class Character : IControllable
+    public class Character : MonoBehaviour
     {
-        private readonly IPawn _pawn;
-        private readonly ICharacterConfigurationData _characterConfiguration;
-        private readonly IWeapon _weapon;
-        private readonly GameObject _coroutineObject;
+        private ICharacterConfigurationData _characterConfiguration;
+        private IInputAbstraction _input;
+        [SerializeField] private MovableComponent _movableComponent;
+        [SerializeField] private WeaponKeeperComponent _weaponKeeperComponent;
+        private WeaponMono _weapon;
+        private Camera _camera;
 
-        public Character(ICharacterConfigurationData characterConfiguration, IPawn pawn, IWeapon weapon)
+        public void Init(ICharacterConfigurationData characterConfiguration, IInputAbstraction input)
         {
-            _pawn = pawn;
             _characterConfiguration = characterConfiguration;
+            _input = input;
+            _camera = Camera.main;
+        }
+
+        public void SetWeapon(WeaponMono weapon, WeaponConfiguration configuration, Func<Transform, Transform, Transform, CancellationToken, UniTask> animationFunction)
+        {
             _weapon = weapon;
-            _coroutineObject = new GameObject();
+            _weaponKeeperComponent.PutWeapon(weapon.transform, configuration.Offset, configuration.Orientation, animationFunction);
         }
 
-        public void Move(Vector3 moveDirection)
+        private void Update()
         {
-            _pawn.Move(_characterConfiguration.MovementSpeed * moveDirection);
-        }
-
-        public void Fire()
-        {
-            _weapon?.Fire();
-        }
-
-        public void Interact()
-        {
-            if (_pawn.IsInteractionAvailable)
+            if (_input.Move.IsPressed)
             {
-                _pawn.Interactable.Interact();
+                Vector3 speed = 6f * _input.Move.Value.XYtoXZ();
+                _movableComponent.Move(speed);
+            }
+
+            if (_input.Fire.Value && !_weaponKeeperComponent.IsAttacking)
+            {
+                _weapon.SetCollisionEnabled(true);
+                _weaponKeeperComponent.Attack();
+            }
+            if (!_weaponKeeperComponent.IsAttacking)
+            {
+                _weapon.SetCollisionEnabled(false);
+            }
+
+            if (_input.MousePos.WasChanged)
+            {
+                Ray ray = _camera.ScreenPointToRay(_input.MousePos.Value);
+    
+                if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f))
+                {
+                    Vector3 targetPoint = hitInfo.point;
+                    RotateToMouse(targetPoint);
+                }
             }
         }
-        
-        public void MoveToPosition(Vector3 position)
+
+        private void RotateToMouse(Vector3 targetPoint)
         {
-            var destination = position.normalized * _characterConfiguration.MovementSpeed;
-            if(destination.sqrMagnitude > position.sqrMagnitude)
+            Vector3 direction = targetPoint - transform.position;
+            direction.y = 0f;
+
+            if (direction.sqrMagnitude > 0.001f)
             {
-                destination = position;
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
             }
-            _pawn.Move(destination);
         }
     }
 }

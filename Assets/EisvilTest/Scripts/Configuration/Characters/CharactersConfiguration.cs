@@ -1,16 +1,12 @@
-using System.Collections.Generic;
 using EisvilTest.Scripts.Configuration.Characters.CharactersData;
-using UnityEngine;
 
 namespace EisvilTest.Scripts.Configuration.Characters
 {
-    public class CharactersConfiguration : ICharacterConfigurations
+    public class CharactersConfiguration : ConfigurationBase<ECharacter, ICharacterConfigurationData>
     {
-        private Dictionary<ECharacter, ICharacterConfigurationData> _characterToConfigurationData;
-
         public CharactersConfiguration()
         {
-            _characterToConfigurationData = new()
+            _keyToData = new()
             {
                 { ECharacter.Player, new CharacterConfigurationData()
                     {
@@ -31,16 +27,6 @@ namespace EisvilTest.Scripts.Configuration.Characters
                     }
                 },
             };
-        }
-
-        public ICharacterConfigurationData GetCharacterConfiguration(ECharacter characterID)
-        {
-            if (!_characterToConfigurationData.TryGetValue(characterID, out var result))
-            {
-                Debug.LogError($"Trying to access data with wrong key! No data for the {characterID.ToString()} key");
-            }
-
-            return result;
         }
     }
 }
