@@ -3,7 +3,7 @@ using EisvilTest.Scripts.Configuration.Characters;
 using EisvilTest.Scripts.Triggers;
 using UnityEngine;
 using EisvilTest.Scripts.Configuration.Characters.CharactersData;
-using EisvilTest.Scripts.PlayerSystem;
+using EisvilTest.Scripts.Controllers;
 
 namespace EisvilTest.Scripts
 {

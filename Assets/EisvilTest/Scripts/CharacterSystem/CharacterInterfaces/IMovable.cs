@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace EisvilTest.Scripts.CharacterSystem
+namespace EisvilTest.Scripts.CharacterSystem.CharacterInterfaces
 {
     public interface IMovable
     {

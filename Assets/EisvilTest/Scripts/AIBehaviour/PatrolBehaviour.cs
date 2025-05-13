@@ -1,57 +1,55 @@
-using EisvilTest.Scripts.CharacterSystem;
-using EisvilTest.Scripts.Triggers;
 using System.Threading.Tasks;
+using EisvilTest.Scripts.AIBehaviour;
 using UnityEngine;
 
-public class PatrolBehaviour : MonoBehaviour, IAIBehaviour, ICharacterController
+public class PatrolBehaviour : AIBehaviourAbstract
 {
-    private IAIBehaviourConfiguration _behaviourConfiguration;
-    private UniversalTrigger _agressionZone;
-    private Transform _pawnTransform;
-    private Transform _patrolPoint;
-    
-    private bool _isPurseTarget;
-    private bool _isPatrol;
-    private bool _isStay;
-    private IControllable _controllable;
+    private bool _isPurseTarget; // преследует
+    private bool _isPatrol; // патрулирует
+    private bool _isStay; // стоит
+
+    private bool _isPatrolTargetWasInitialized;
     private Vector3 _patrolTarget;
+    private Vector3 _moveDirection;
+    
+    private AIContext _context;
 
-    public PatrolBehaviour(IAIBehaviourConfiguration behaviourConfiguration, UniversalTrigger agressionZone, Transform pawnTransform, Transform patrolPoint)
+    public override void Enter(AIContext context)
     {
-        _behaviourConfiguration = behaviourConfiguration;
-        _agressionZone = agressionZone;
-        agressionZone.transform.SetParent(pawnTransform);
-        agressionZone.transform.localPosition = Vector3.zero;
-        agressionZone.AddActionToBoth(OnAgressionZoneEnter, OnAgressionZoneExit, LayerMask.GetMask("Player"));
-        _pawnTransform = pawnTransform;
-        _patrolPoint = patrolPoint;
+        _context = context;
+        _context.AggressionZone.AddActionToBoth(OnAggressionZoneEnter, OnAggressionZoneExit, LayerMask.GetMask("Player"));
     }
 
-    private void OnAgressionZoneEnter(GameObject interactedObject)
+    public override void Update()
     {
-        _isPurseTarget = true;
-    }
-
-    private void OnAgressionZoneExit(GameObject interactedObject)
-    {
-        _isPatrol = true;
-    }
-
-    public void Update()
-    {
-        if(_isPatrol && !_isPurseTarget)
+        if (IsReachTarget())
         {
-            _controllable.MoveToPosition(_patrolTarget);
+            // _aiMachine.
         }
+
+        if (!_isPatrolTargetWasInitialized)
+        {
+            _patrolTarget = GetRandomPatrolPoint();
+            _isPatrolTargetWasInitialized = true;
+        }
+        
+        _moveDirection = _patrolTarget.normalized;
+    }
+
+    private bool IsReachTarget()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void Exit()
+    {
+        throw new System.NotImplementedException();
+        _isPatrolTargetWasInitialized = false;
+        _context = new();
     }
 
     private async Task Patrol() // async
     {
-        while(_isPatrol && !_isPurseTarget)
-        {
-            _patrolTarget = GetRandomPatrolPoint();
-            
-        }
         // whyle(_isPatrol){
         //     Choose new point
         //     whyle(not reach the target) Move to target
@@ -63,14 +61,15 @@ public class PatrolBehaviour : MonoBehaviour, IAIBehaviour, ICharacterController
 
     private Vector3 GetRandomPatrolPoint()
     {
-        var nextDirectionAngle = Vector3.SignedAngle((_patrolPoint.position - _pawnTransform.position).normalized, Vector3.right, Vector3.up);
-        var nextDirection = Quaternion.AngleAxis(nextDirectionAngle + (float)Random.Range(-45f, 45f), Vector3.up).eulerAngles 
-            * Random.Range(_behaviourConfiguration.PatrolZoneRadius*0.5f, _behaviourConfiguration.PatrolZoneRadius + _behaviourConfiguration.PatrolZoneRadius);
+        var nextDirectionAngle = Vector3.SignedAngle((_context.PatrolPoint.position - _context.PawnTransform.position).normalized, Vector3.right, Vector3.up);
+        var nextDirection = Quaternion.AngleAxis(nextDirectionAngle + Random.Range(-45f, 45f), Vector3.up).eulerAngles;
+        var targetPoint = nextDirection * Random.Range(_context.BehaviourConfiguration.PatrolZoneRadius / 2, _context.BehaviourConfiguration.PatrolZoneRadius * 2);
         
-        var points = LineIntersactions.LineCircleIntersections(_pawnTransform.position, nextDirection, _patrolPoint.position, _behaviourConfiguration.PatrolZoneRadius);
+        var points = LineIntersactions.LineCircleIntersections(_context.PawnTransform.position, targetPoint, _context.PatrolPoint.position, _context.BehaviourConfiguration.PatrolZoneRadius);
         var point = points[0];
         const float SqrMagnitudeEpsilon = 0.02f;
-        if ((point - _pawnTransform.position).sqrMagnitude < SqrMagnitudeEpsilon // if target point same as start pos
+        
+        if ((point - _context.PawnTransform.position).sqrMagnitude < SqrMagnitudeEpsilon // if target point same as start pos
             || (point.normalized + nextDirection.normalized).sqrMagnitude < SqrMagnitudeEpsilon) // or target point in opposit direction
         {
             point = points[0];
@@ -79,18 +78,15 @@ public class PatrolBehaviour : MonoBehaviour, IAIBehaviour, ICharacterController
         return point;
     }
 
-    public async Task StayOnPoint()
+    private void OnAggressionZoneEnter(GameObject interactedObject)
     {
-        float timer = _behaviourConfiguration.PatrolWaitTime;
-        while(timer > 0 || !_isPurseTarget)
-        {
-            await Task.Yield();
-            timer -= Time.deltaTime;
-        }
+        _isPurseTarget = true;
     }
 
-    public void SetControllable(IControllable controllable)
+    private void OnAggressionZoneExit(GameObject interactedObject)
     {
-        _controllable = controllable;
+        _isPatrol = true;
     }
+
+    public PatrolBehaviour(AIMachine aiMachine) : base(aiMachine){}
 }

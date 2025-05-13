@@ -1,8 +1,7 @@
-using System;
 using EisvilTest.Scripts.CharacterSystem;
 using UnityEngine;
 
-namespace EisvilTest.Scripts.PlayerSystem
+namespace EisvilTest.Scripts.Controllers
 {
     public class CharacterControllerPC : MonoBehaviour, ICharacterController
     {
