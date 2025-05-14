@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 
 namespace EisvilTest.Scripts.CharacterSystem
@@ -34,24 +35,26 @@ namespace EisvilTest.Scripts.CharacterSystem
             _animation = animationFunction;
         }
 
-        public void Attack()
+        public void Attack(float delay)
         {
             if (IsAttacking) return;
-            IsAttacking = true;
-            
-            _ = AttackAsync();
-            IsAttacking = false;
+            _ = AttackAsync(delay);
         }
         
-        private async UniTask AttackAsync()
+        private async UniTask AttackAsync(float delay)
         {
+            IsAttacking = true;
             cts = new CancellationTokenSource();
             
             await _animation(transform, distantPoint, _weaponTransform, cts.Token);
-            
-            _weaponTransform.localRotation = _initialLocalRotation;
-            distantPoint.localPosition = _initialLocalPosition;
-            transform.localRotation = Quaternion.identity;
+
+            var returnRotation = _weaponTransform.DOLocalRotate(_initialLocalRotation.eulerAngles, 0.2f).AsyncWaitForCompletion().AsUniTask();
+            var returnDistantPointPosition = distantPoint.DOLocalMove(_initialLocalPosition, 0.2f).AsyncWaitForCompletion().AsUniTask();
+            var returnSelfRotation = transform.DOLocalRotate(Vector3.zero, 0.2f).AsyncWaitForCompletion().AsUniTask();
+
+            await UniTask.WhenAll(UniTask.WaitForSeconds(delay), returnRotation, returnDistantPointPosition, returnSelfRotation);
+
+            IsAttacking = false;
         }
     }
 }

@@ -38,7 +38,8 @@ namespace EisvilTest.Scripts
             characterControllerPC.Init(new PlayerControls(), setter);
             character.Init(_charactersConfiguration.GetData(ECharacter.Player), getter);
             var weaponConfiguration = _weaponsConfiguration.GetData(EWeapons.Stick);
-            character.SetWeapon(_weaponMono, weaponConfiguration,
+            WeaponLogic weapon = new WeaponLogic(_weaponMono, weaponConfiguration);
+            character.SetWeapon(weapon, weaponConfiguration,
                 async (weaponKeeper, distantPoint, self, token) =>
                 {
                     float hitAngle = 90f;

@@ -11,12 +11,27 @@ namespace EisvilTest.Scripts.CharacterSystem
 {
     public class Character : MonoBehaviour
     {
+        private readonly CharacterProperties _characterProperties = new();
+        public ICharacterProperties CharacterProperties => _characterProperties;
+
         private ICharacterConfigurationData _characterConfiguration;
         private IInputAbstraction _input;
         [SerializeField] private MovableComponent _movableComponent;
         [SerializeField] private WeaponKeeperComponent _weaponKeeperComponent;
-        private WeaponMono _weapon;
+        [SerializeField] private DamageableComponent _damageableComponent;
+        private WeaponLogic _weapon;
+        private WeaponConfiguration _weaponConfiguration;
         private Camera _camera;
+
+        private void Awake()
+        {
+            _damageableComponent.DamageInflicted += OnDamageInflicted;
+        }
+
+        private void OnDamageInflicted(float damage)
+        {
+            _characterProperties.Health.Value -= damage;
+        }
 
         public void Init(ICharacterConfigurationData characterConfiguration, IInputAbstraction input)
         {
@@ -25,10 +40,12 @@ namespace EisvilTest.Scripts.CharacterSystem
             _camera = Camera.main;
         }
 
-        public void SetWeapon(WeaponMono weapon, WeaponConfiguration configuration, Func<Transform, Transform, Transform, CancellationToken, UniTask> animationFunction)
+        public void SetWeapon(WeaponLogic weapon, WeaponConfiguration configuration, Func<Transform, Transform, Transform, CancellationToken, UniTask> animationFunction)
         {
             _weapon = weapon;
-            _weaponKeeperComponent.PutWeapon(weapon.transform, configuration.Offset, configuration.Orientation, animationFunction);
+            _weaponConfiguration = configuration;
+            _weaponKeeperComponent.PutWeapon(weapon.GetTransform(), configuration.Offset, configuration.Orientation, animationFunction);
+            weapon.Equip(gameObject, LayerMask.GetMask("Player", "Enemy", "Destructable"));
         }
 
         private void Update()
@@ -41,12 +58,12 @@ namespace EisvilTest.Scripts.CharacterSystem
 
             if (_input.Fire.Value && !_weaponKeeperComponent.IsAttacking)
             {
-                _weapon.SetCollisionEnabled(true);
-                _weaponKeeperComponent.Attack();
+                _weapon.SetWeaponAttackMode();
+                _weaponKeeperComponent.Attack(_weaponConfiguration.AttacksDellay);
             }
             if (!_weaponKeeperComponent.IsAttacking)
             {
-                _weapon.SetCollisionEnabled(false);
+                _weapon.SetWeaponNormalMode();
             }
 
             if (_input.MousePos.WasChanged)

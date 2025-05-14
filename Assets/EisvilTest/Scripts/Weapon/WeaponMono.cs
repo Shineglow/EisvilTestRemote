@@ -17,7 +17,7 @@ namespace EisvilTest.Scripts.Weapon
 
         public void SetCollisionEnabled(bool isActive)
         {
-            collider.enabled = true;
+            collider.enabled = isActive;
         }
 
         public void SetLayerMask(LayerMask mask)

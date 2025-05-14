@@ -4,6 +4,7 @@ namespace EisvilTest.Scripts.Configuration.Weapon
 {
     public class WeaponConfiguration
     {
+        public EWeapons Weapon;
         public float Damage;
         public float AttackTime;
         public float AttacksDellay;
