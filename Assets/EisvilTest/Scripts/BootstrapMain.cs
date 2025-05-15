@@ -13,7 +13,6 @@ namespace EisvilTest.Scripts
 {
     public class BootstrapMain : MonoBehaviour
     {
-        [SerializeField] private UniversalTrigger trigger;
         private CharactersConfiguration _charactersConfiguration;
         private ICharacterController _characterController;
 
@@ -25,7 +24,6 @@ namespace EisvilTest.Scripts
         {
             // initialization here
             int mask = LayerMask.GetMask("Player");
-            trigger.AddActionToBoth(OnUniversalTriggerEnter, OnUniversalTriggerExit, mask);
         }
 
         private void Start()
@@ -36,7 +34,8 @@ namespace EisvilTest.Scripts
             
             InputCreator.CreateBoundedInstances(out var setter, out var getter);
             characterControllerPC.Init(new PlayerControls(), setter);
-            character.Init(_charactersConfiguration.GetData(ECharacter.Player), getter);
+            character.Init(_charactersConfiguration.GetData(ECharacter.Player));
+            character.SetInput(getter);
             var weaponConfiguration = _weaponsConfiguration.GetData(EWeapons.Stick);
             WeaponLogic weapon = new WeaponLogic(_weaponMono, weaponConfiguration);
             character.SetWeapon(weapon, weaponConfiguration,

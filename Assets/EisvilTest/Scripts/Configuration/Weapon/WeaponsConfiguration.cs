@@ -12,7 +12,7 @@ namespace EisvilTest.Scripts.Configuration.Weapon
                 {
                     Damage = 1.5f,
                     AttackTime = 0.2f,
-                    AttacksDellay = 0.8f,
+                    AttacksDellay = 0.3f,
                     Offset = (Vector3.right + Vector3.forward).normalized,
                     Orientation = Quaternion.Euler(90, 45,0),
                 }},

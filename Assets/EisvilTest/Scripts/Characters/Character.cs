@@ -2,10 +2,12 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using EisvilTest.Scripts.Configuration.Characters;
+using EisvilTest.Scripts.Configuration.Characters.CharactersData;
 using EisvilTest.Scripts.Configuration.Weapon;
 using EisvilTest.Scripts.Input;
 using EisvilTest.Scripts.Weapon;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace EisvilTest.Scripts.CharacterSystem
 {
@@ -23,6 +25,9 @@ namespace EisvilTest.Scripts.CharacterSystem
         private WeaponConfiguration _weaponConfiguration;
         private Camera _camera;
 
+        public ECharacter CharacterType => _characterConfiguration.Character;
+        public event Action<Character> CharacterDied;
+
         private void Awake()
         {
             _damageableComponent.DamageInflicted += OnDamageInflicted;
@@ -31,13 +36,21 @@ namespace EisvilTest.Scripts.CharacterSystem
         private void OnDamageInflicted(float damage)
         {
             _characterProperties.Health.Value -= damage;
+            if (_characterProperties.Health.Value <= 0)
+            {
+                CharacterDied?.Invoke(this);
+            }
         }
 
-        public void Init(ICharacterConfigurationData characterConfiguration, IInputAbstraction input)
+        public void Init(ICharacterConfigurationData characterConfiguration)
         {
             _characterConfiguration = characterConfiguration;
-            _input = input;
             _camera = Camera.main;
+        }
+
+        public void SetInput(IInputAbstraction input)
+        {
+            _input = input;
         }
 
         public void SetWeapon(WeaponLogic weapon, WeaponConfiguration configuration, Func<Transform, Transform, Transform, CancellationToken, UniTask> animationFunction)
@@ -88,6 +101,16 @@ namespace EisvilTest.Scripts.CharacterSystem
                 Quaternion targetRotation = Quaternion.LookRotation(direction);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
             }
+        }
+
+        public void Disable()
+        {
+            gameObject.SetActive(false);
+        }
+
+        public void Enable()
+        {
+            gameObject.SetActive(true);
         }
     }
 }

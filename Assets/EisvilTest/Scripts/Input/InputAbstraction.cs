@@ -4,6 +4,20 @@ namespace EisvilTest.Scripts.Input
 {
     public class InputCreator
     {
+        private static IInputAbstraction _voidInput;
+        public static IInputAbstraction VoidInput
+        {
+            get
+            {
+                if (_voidInput == null)
+                {
+                    CreateBoundedInstances(out _, out _voidInput);
+                }
+
+                return _voidInput;
+            }
+        }
+        
         public static void CreateBoundedInstances(out InputAbstractionSetter setter, out IInputAbstraction getter)
         {
             setter = new InputAbstractionSetter();
