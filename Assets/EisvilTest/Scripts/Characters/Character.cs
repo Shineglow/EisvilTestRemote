@@ -1,27 +1,26 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using EisvilTest.Scripts.Configuration.Characters;
+using EisvilTest.Scripts.CharacterSystem;
 using EisvilTest.Scripts.Configuration.Characters.CharactersData;
 using EisvilTest.Scripts.Configuration.Weapon;
 using EisvilTest.Scripts.Input;
-using EisvilTest.Scripts.Weapon;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-namespace EisvilTest.Scripts.CharacterSystem
+namespace EisvilTest.Scripts.Characters
 {
     public class Character : MonoBehaviour
     {
+        [SerializeField] private MovableComponent _movableComponent;
+        [SerializeField] private WeaponKeeperComponent _weaponKeeperComponent;
+        [SerializeField] private DamageableComponent _damageableComponent;
+        
         private readonly CharacterProperties _characterProperties = new();
         public ICharacterProperties CharacterProperties => _characterProperties;
 
         private ICharacterConfigurationData _characterConfiguration;
         private IInputAbstraction _input;
-        [SerializeField] private MovableComponent _movableComponent;
-        [SerializeField] private WeaponKeeperComponent _weaponKeeperComponent;
-        [SerializeField] private DamageableComponent _damageableComponent;
-        private WeaponLogic _weapon;
+        private IWeaponLogic _weapon;
         private WeaponConfiguration _weaponConfiguration;
         private Camera _camera;
 
@@ -53,7 +52,7 @@ namespace EisvilTest.Scripts.CharacterSystem
             _input = input;
         }
 
-        public void SetWeapon(WeaponLogic weapon, WeaponConfiguration configuration, Func<Transform, Transform, Transform, CancellationToken, UniTask> animationFunction)
+        public void SetWeapon(IWeaponLogic weapon, WeaponConfiguration configuration, Func<Transform, Transform, Transform, CancellationToken, UniTask> animationFunction)
         {
             _weapon = weapon;
             _weaponConfiguration = configuration;
@@ -63,6 +62,13 @@ namespace EisvilTest.Scripts.CharacterSystem
 
         private void Update()
         {
+            InputProcessing();
+        }
+
+        private void InputProcessing()
+        {
+            if (_input == null) return;
+            
             if (_input.Move.IsPressed)
             {
                 Vector3 speed = 6f * _input.Move.Value.XYtoXZ();
@@ -74,6 +80,7 @@ namespace EisvilTest.Scripts.CharacterSystem
                 _weapon.SetWeaponAttackMode();
                 _weaponKeeperComponent.Attack(_weaponConfiguration.AttacksDellay);
             }
+
             if (!_weaponKeeperComponent.IsAttacking)
             {
                 _weapon.SetWeaponNormalMode();
@@ -82,7 +89,7 @@ namespace EisvilTest.Scripts.CharacterSystem
             if (_input.MousePos.WasChanged)
             {
                 Ray ray = _camera.ScreenPointToRay(_input.MousePos.Value);
-    
+
                 if (Physics.Raycast(ray, out RaycastHit hitInfo, 100f))
                 {
                     Vector3 targetPoint = hitInfo.point;

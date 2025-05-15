@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace EisvilTest.Scripts.CharacterSystem
+namespace EisvilTest.Scripts.Characters
 {
     public class MovableComponent : MonoBehaviour
     {

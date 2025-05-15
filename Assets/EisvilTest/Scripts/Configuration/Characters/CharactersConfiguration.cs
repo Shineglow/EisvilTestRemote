@@ -1,4 +1,6 @@
+using EisvilTest.Scripts.Characters;
 using EisvilTest.Scripts.Configuration.Characters.CharactersData;
+using EisvilTest.Scripts.Configuration.Weapon;
 
 namespace EisvilTest.Scripts.Configuration.Characters
 {
@@ -10,18 +12,25 @@ namespace EisvilTest.Scripts.Configuration.Characters
             {
                 { ECharacter.Player, new CharacterConfigurationData()
                     {
+                        Character = ECharacter.Player,
+                        Prefab = ECharacterPrefabs.Player,
+                        InitialWeapon = EWeapons.Stick,
                         MaxHealth = 20,
                         MovementSpeed = 2,
                     }
                 },
-                {ECharacter.EnemyFast, new CharacterConfigurationData()
+                {ECharacter.EnemyRed, new CharacterConfigurationData()
                     {
+                        Character = ECharacter.EnemyRed,
+                        Prefab = ECharacterPrefabs.Enemy,
                         MaxHealth = 1,
                         MovementSpeed = 2.1f,
                     }
                 },
-                {ECharacter.EnemyBig, new CharacterConfigurationData()
+                {ECharacter.EnemyGreen, new CharacterConfigurationData()
                     {
+                        Character = ECharacter.EnemyGreen,
+                        Prefab = ECharacterPrefabs.Enemy,
                         MaxHealth = 5,
                         MovementSpeed = 1.5f,
                     }

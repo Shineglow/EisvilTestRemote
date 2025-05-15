@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
-using EisvilTest.Scripts.CharacterSystem;
 using EisvilTest.Scripts.Configuration;
 using EisvilTest.Scripts.Configuration.Characters.CharactersData;
+using EisvilTest.Scripts.Configuration.Weapon;
 using EisvilTest.Scripts.ResourcesManagement;
+using EisvilTest.Scripts.Weapon;
 
 namespace EisvilTest.Scripts.Characters
 {
@@ -12,13 +13,17 @@ namespace EisvilTest.Scripts.Characters
         private Dictionary<ECharacter, (HashSet<Character> active, Stack<Character> inactive)> _poolsByType = new();
         
         private readonly ConfigurationBase<ECharacter, ICharacterConfigurationData> _characterConfiguration;
+        private readonly ConfigurationBase<EWeapons, WeaponConfiguration> _weaponsConfiguration;
         private readonly ResourceManager _resourceManager;
+        private readonly WeaponSystem _weaponSystem;
 
         public event Action<Character> AnyCharacterDied;
 
         public CharactersSystem()
         {
             _characterConfiguration = CompositionRoot.GetCharactersConfiguration();
+            _weaponsConfiguration = CompositionRoot.GetWeaponsConfiguration();
+            _weaponSystem = CompositionRoot.GetWeaponSystem();
             _resourceManager = CompositionRoot.GetResourceManager();
         }
 
@@ -27,7 +32,10 @@ namespace EisvilTest.Scripts.Characters
             HashSet<Character> active;
             Stack<Character> inactive;
             Character characterInstance;
-            
+            var characterConfiguration = _characterConfiguration.GetData(character);
+
+            #region GetCharacterInstance
+
             if (_poolsByType.TryGetValue(character, out var pools))
             {
                 (active, inactive) = pools;
@@ -37,18 +45,31 @@ namespace EisvilTest.Scripts.Characters
                 }
                 else
                 {
-                    characterInstance = _resourceManager.CreatePrefabInstance<Character, ECharacter>(character);
+                    characterInstance = _resourceManager.CreatePrefabInstance<Character, ECharacterPrefabs>(characterConfiguration.Prefab);
                     active.Add(characterInstance);
                 }
             }
             else
             {
                 _poolsByType.Add(character, (active = new(), inactive = new()));
-                characterInstance = _resourceManager.CreatePrefabInstance<Character, ECharacter>(character);
+                characterInstance = _resourceManager.CreatePrefabInstance<Character, ECharacterPrefabs>(characterConfiguration.Prefab);
                 active.Add(characterInstance);
             }
+            characterInstance.Init(characterConfiguration);
             
-            characterInstance.Init(_characterConfiguration.GetData(character));
+            #endregion
+
+            #region SetInitialWeapon
+
+            if (characterConfiguration.InitialWeapon != EWeapons.None)
+            {
+                var weaponLogic = _weaponSystem.GetWeapon(characterConfiguration.InitialWeapon);
+                var configuration = _weaponsConfiguration.GetData(characterConfiguration.InitialWeapon);
+                characterInstance.SetWeapon(weaponLogic, configuration, WeaponAnimations.SwipeAnimationPattern(90f, configuration.AttackTime));
+            }
+
+            #endregion
+            
             characterInstance.CharacterDied += OnCharacterDied;
 
             return characterInstance;

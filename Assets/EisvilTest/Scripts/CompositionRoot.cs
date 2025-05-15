@@ -4,6 +4,7 @@ using EisvilTest.Scripts.Configuration.Characters;
 using EisvilTest.Scripts.Configuration.Characters.CharactersData;
 using EisvilTest.Scripts.Configuration.Weapon;
 using EisvilTest.Scripts.ResourcesManagement;
+using EisvilTest.Scripts.Weapon;
 using UnityEngine;
 
 namespace EisvilTest.Scripts
@@ -12,6 +13,7 @@ namespace EisvilTest.Scripts
     {
         private static ResourceManager ResourceManager;
         private static CharactersSystem CharactersSystem;
+        private static WeaponSystem WeaponSystem;
         
         private static ConfigurationBase<EWeapons, WeaponConfiguration> WeaponsConfiguration;
         private static ConfigurationBase<ECharacter, ICharacterConfigurationData> CharactersConfiguration;
@@ -29,6 +31,11 @@ namespace EisvilTest.Scripts
         public static CharactersSystem GetCharactersSystem()
         {
             return CharactersSystem ??= new CharactersSystem();
+        }
+
+        public static WeaponSystem GetWeaponSystem()
+        {
+            return WeaponSystem ??= new WeaponSystem();
         }
 
         public static ConfigurationBase<EWeapons, WeaponConfiguration> GetWeaponsConfiguration()

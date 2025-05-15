@@ -4,21 +4,39 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class WeaponLogic : IDisposable
+public class WeaponLogic : IWeaponLogic
 {
-    private readonly WeaponMono _weaponMono;
-    private readonly WeaponConfiguration _configuration;
+    private WeaponMono _weaponMono;
+    private WeaponConfiguration _configuration;
     private GameObject _owner;
     private LayerMask _targetMask;
 
     private HashSet<DamageableComponent> _damagedThisFrame = new();
 
+    public EWeapons Weapon => _configuration.Weapon;
+    public WeaponMono WeaponMono => _weaponMono;
+
     public WeaponLogic(WeaponMono weaponMono, WeaponConfiguration configuration)
     {
-        _weaponMono = weaponMono;
-        _configuration = configuration;
+        SetView(weaponMono);
+        SetConfiguration(configuration);
 
         _weaponMono.WeaponHitTarget += OnHit;
+    }
+
+    public void SetView(WeaponMono weaponMono)
+    {
+        if (_weaponMono != null)
+        {
+            _weaponMono.WeaponHitTarget -= OnHit;
+        }
+        _weaponMono = weaponMono;
+        _weaponMono.WeaponHitTarget += OnHit;
+    }
+
+    public void SetConfiguration(WeaponConfiguration configuration)
+    {
+        _configuration = configuration;
     }
 
     public void Equip(GameObject owner, LayerMask targetMask)
@@ -57,14 +75,17 @@ public class WeaponLogic : IDisposable
         _damagedThisFrame.Clear();
     }
 
-    public void Dispose()
-    {
-        Unequip();
-        _weaponMono.WeaponHitTarget -= OnHit;
-    }
-
-    internal Transform GetTransform()
+    public Transform GetTransform()
     {
         return _weaponMono.transform;
     }
+}
+
+public interface IWeaponLogic
+{
+    void Equip(GameObject owner, LayerMask targetMask);
+    void Unequip();
+    void SetWeaponAttackMode();
+    void SetWeaponNormalMode();
+    Transform GetTransform();
 }
