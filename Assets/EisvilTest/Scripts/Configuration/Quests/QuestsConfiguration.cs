@@ -20,6 +20,27 @@ namespace EisvilTest.Scripts.Configuration.Quests
                         EnemyType = ECharacter.EnemyRed,
                         KillsCount = 10,
                     }
+                }},
+                { EQuests.Kill10AnyEnemies , new QuestConfiguration()
+                {
+                    Name = "The indiscriminate killings",
+                    Description = "You need to deal with the bad guys.",
+                    GoalConfiguration = new KillsGoalConfiguration()
+                    {
+                        DescriptionSetter = "Kill 10 any enemies",
+                        EnemyType = ECharacter.Any,
+                        KillsCount = 10,
+                    }
+                }},
+                { EQuests.Spend2MinutesInGame , new QuestConfiguration()
+                {
+                    Name = "First minutes are best.",
+                    Description = "Just spend some time with us.",
+                    GoalConfiguration = new SpendTimeGoalConfiguration()
+                    {
+                        DescriptionSetter = "Spend two minutes in the game.",
+                        TimeToSpendInSeconds = 2 * 60,
+                    }
                 }}
             };
         }

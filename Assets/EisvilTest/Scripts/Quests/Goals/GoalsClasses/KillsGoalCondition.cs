@@ -1,5 +1,6 @@
 using System.Text;
 using EisvilTest.Scripts.Characters;
+using EisvilTest.Scripts.Configuration.Characters.CharactersData;
 using EisvilTest.Scripts.Configuration.Quests.Conditions;
 using EisvilTest.Scripts.Configuration.Quests.Conditions.Inheritors;
 
@@ -30,7 +31,7 @@ namespace EisvilTest.Scripts.Quests.Goals.GoalsClasses
         {
             bool anyValuesChanged = false;
             
-            if (obj.CharacterType == _killsConfiguration.EnemyType)
+            if (obj.CharacterType == _killsConfiguration.EnemyType || _killsConfiguration.EnemyType == ECharacter.Any)
             {
                 _count++;
                 anyValuesChanged = true;

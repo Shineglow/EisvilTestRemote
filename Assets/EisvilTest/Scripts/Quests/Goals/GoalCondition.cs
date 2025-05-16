@@ -60,13 +60,18 @@ namespace EisvilTest.Scripts.Quests.Goals
         private void OnSecondaryGoalsAchieved(IReadOnlyCollection<GoalCondition> goals)
         {
             SecondaryGoalsAchieved = true;
-            SetGoalAchieved();
+            CheckGoalAchieved();
         }
 
         protected void SetGoalAchieved()
         {
             if (_propertiesSetter.GoalAchieved.Value) return;
             MainGoalAchieved = true;
+            CheckGoalAchieved();
+        }
+
+        private void CheckGoalAchieved()
+        {
             switch (_configuration.OperationBetweenMainGoalAndSubGoals)
             {
                 case EBoolenOperation.And:
@@ -80,11 +85,11 @@ namespace EisvilTest.Scripts.Quests.Goals
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            
+
             _propertiesSetter.GoalAchieved.Value = true;
 
             DisableProgressTracking();
-            
+
             GoalAchieved?.Invoke(this);
         }
 

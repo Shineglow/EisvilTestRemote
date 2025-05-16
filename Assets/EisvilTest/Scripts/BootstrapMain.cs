@@ -1,4 +1,3 @@
-using System;
 using EisvilTest.Scripts.Characters;
 using EisvilTest.Scripts.Configuration;
 using UnityEngine;
@@ -39,6 +38,8 @@ namespace EisvilTest.Scripts
         private void Start()
         {
             _questSystem.StartQuest(character, EQuests.Kill10RedEnemies);
+            _questSystem.StartQuest(character, EQuests.Kill10AnyEnemies);
+            _questSystem.StartQuest(character, EQuests.Spend2MinutesInGame);
         }
 
         private void CreateAndSetupPlayer()
