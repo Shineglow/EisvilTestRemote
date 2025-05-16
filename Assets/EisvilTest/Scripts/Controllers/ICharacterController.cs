@@ -1,7 +1,9 @@
-namespace EisvilTest.Scripts.CharacterSystem
+using EisvilTest.Scripts.Input;
+
+namespace EisvilTest.Scripts.Controllers
 {
     public interface ICharacterController
     {
-        void SetControllable(IControllable controllable);
+        InputAbstractionSetter InputAbstraction { get; set; }
     }
 }

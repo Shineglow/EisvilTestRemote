@@ -1,43 +1,41 @@
 using EisvilTest.Scripts.CharacterSystem;
+using EisvilTest.Scripts.Input;
 using UnityEngine;
 
 namespace EisvilTest.Scripts.Controllers
 {
     public class CharacterControllerPC : MonoBehaviour, ICharacterController
     {
-        private IControllable _controllable;
         private PlayerControls.PlayerActions _playerControls;
+        public InputAbstractionSetter InputAbstraction { get; set; }
 
-        public void SetPlayerControls(PlayerControls playerControls)
+        public void Init(PlayerControls playerControls, InputAbstractionSetter inputAbstraction)
         {
+            InputAbstraction = inputAbstraction;
             _playerControls = playerControls.Player;
             _playerControls.Enable();
         }
 
-        public void SetControllable(IControllable controllable)
-        {
-            _controllable = controllable;
-        }
-
         private void Update()
         {
-            var moveDirection = _playerControls.Move.ReadValue<Vector2>();
-            if (moveDirection != Vector2.zero)
-            {
-                _controllable.Move(moveDirection.XYtoXZ());
-            }
+            var moveOld = InputAbstraction.Move.Value;
+            InputAbstraction.Move.Value = _playerControls.Move.ReadValue<Vector2>();
+            InputAbstraction.Move.IsPressed = _playerControls.Move.IsPressed();
+            InputAbstraction.Move.WasChanged = moveOld != InputAbstraction.Move.Value;
 
-            var fire = _playerControls.Fire.WasPerformedThisFrame();
-            if (fire)
-            {
-                _controllable.Fire();
-            }
-
-            var interaction = _playerControls.Interaction.WasPerformedThisFrame();
-            if (interaction)
-            {
-                _controllable.Interact();
-            }
+            var fireOld = InputAbstraction.Fire.Value;
+            InputAbstraction.Fire.Value = _playerControls.Fire.WasPressedThisFrame();
+            InputAbstraction.Fire.IsPressed = _playerControls.Fire.IsPressed();
+            InputAbstraction.Fire.WasChanged = fireOld != InputAbstraction.Fire.Value;
+            
+            var interactionOld = InputAbstraction.Interaction.Value;
+            InputAbstraction.Interaction.Value = _playerControls.Interaction.WasPressedThisFrame();
+            InputAbstraction.Interaction.IsPressed = _playerControls.Interaction.IsPressed();
+            InputAbstraction.Interaction.WasChanged = interactionOld != InputAbstraction.Interaction.Value;
+            
+            var mousePosOld = InputAbstraction.MousePos.Value;
+            InputAbstraction.MousePos.Value = _playerControls.MousePos.ReadValue<Vector2>();
+            InputAbstraction.MousePos.WasChanged = mousePosOld != InputAbstraction.MousePos.Value;
         }
     }
 }

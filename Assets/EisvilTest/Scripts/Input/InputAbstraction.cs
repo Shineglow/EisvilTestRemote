@@ -1,33 +1,85 @@
-using EisvilTest.Scripts.General;
 using UnityEngine;
 
 namespace EisvilTest.Scripts.Input
 {
-    public class InputAbstraction
+    public class InputCreator
     {
-        public InputAbstraction(IActionDetails<Vector2> move, IActionDetails<bool> interaction, IActionDetails<bool> fire)
+        private static IInputAbstraction _voidInput;
+        public static IInputAbstraction VoidInput
         {
-            Move = move;
-            Interaction = interaction;
-            Fire = fire;
+            get
+            {
+                if (_voidInput == null)
+                {
+                    CreateBoundedInstances(out _, out _voidInput);
+                }
+
+                return _voidInput;
+            }
         }
         
-        public IActionDetails<Vector2> Move {get;}
-        public IActionDetails<bool> Interaction {get;}
-        public IActionDetails<bool> Fire {get;}
+        public static void CreateBoundedInstances(out InputAbstractionSetter setter, out IInputAbstraction getter)
+        {
+            setter = new InputAbstractionSetter();
+            var getterInstance = new InputAbstraction()
+            {
+                MousePos = setter.MousePos,
+                Move = setter.Move,
+                Fire = setter.Fire,
+                Interaction = setter.Interaction,
+            };
+            getter = getterInstance;
+        }
+    }
+    
+    public class InputAbstraction : IInputAbstraction
+    {
+        public IInputActionDetails<Vector2> MousePos { get; set; }
+        public IInputActionDetails<Vector2> Move { get; set; }
+        public IInputActionDetails<bool> Fire { get; set; }
+        public IInputActionDetails<bool> Interaction { get; set; }
     }
 
-    public interface IActionDetails<T>
+    public class InputAbstractionSetter
     {
-        IReadOnlyObservableValue<T> Value { get; }
-        bool WasPerformedThisFrame { get; }
-        bool IsActive { get; }
+        public InputActionDetails<Vector2> MousePos { get; } = new();
+        public InputActionDetails<Vector2> Move { get; } = new();
+        public InputActionDetails<bool> Fire { get; } = new();
+        public InputActionDetails<bool> Interaction { get; } = new();
     }
 
-    public class ActionDetails<T> : IActionDetails<T>
+    public interface IInputAbstraction
     {
-        public IReadOnlyObservableValue<T> Value { get; set; }
-        public bool WasPerformedThisFrame { get; set; }
-        public bool IsActive { get; set; }
+        IInputActionDetails<Vector2> MousePos {get;}
+        IInputActionDetails<Vector2> Move {get;}
+        IInputActionDetails<bool> Fire {get;}
+        IInputActionDetails<bool> Interaction {get;}
+    }
+
+    public class InputActionDetails<T> : IInputActionDetails<T>
+    {
+        private T _value;
+
+        public T Value
+        {
+            get => _value;
+            set
+            {
+                if (Equals(_value, value)) return;
+                _value = value;
+                _isPressed = !Equals(default, value);
+            }
+        }
+
+        private bool _isPressed;
+        public bool IsPressed { get => _isPressed; set => _isPressed = value; }
+        public bool WasChanged { get; set; }
+    }
+    
+    public interface IInputActionDetails<T>
+    {
+        public T Value { get; }
+        public bool IsPressed { get; }
+        public bool WasChanged { get; }
     }
 }
