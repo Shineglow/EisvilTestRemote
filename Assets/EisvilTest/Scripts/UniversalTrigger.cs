@@ -7,7 +7,7 @@ namespace EisvilTest.Scripts.Triggers
     [RequireComponent(typeof(Collider))]
     public class UniversalTrigger : MonoBehaviour
     {
-        [SerializeField] private Collider collider;
+        [SerializeField] private new Collider collider;
 
         private List<ActionData> triggerEnterActions = new();
         private List<ActionData> triggerExitActions = new();

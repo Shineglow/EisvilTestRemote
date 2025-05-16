@@ -1,46 +1,45 @@
-using System.Collections.Generic;
+using EisvilTest.Scripts.Characters;
 using EisvilTest.Scripts.Configuration.Characters.CharactersData;
-using UnityEngine;
+using EisvilTest.Scripts.Configuration.Weapon;
+using EisvilTest.Scripts.ResourcesManagement.Enums;
 
 namespace EisvilTest.Scripts.Configuration.Characters
 {
-    public class CharactersConfiguration : ICharacterConfigurations
+    public class CharactersConfiguration : ConfigurationBase<ECharacter, ICharacterConfigurationData>
     {
-        private Dictionary<ECharacter, ICharacterConfigurationData> _characterToConfigurationData;
-
         public CharactersConfiguration()
         {
-            _characterToConfigurationData = new()
+            _keyToData = new()
             {
                 { ECharacter.Player, new CharacterConfigurationData()
                     {
+                        Character = ECharacter.Player,
+                        Prefab = ECharacterPrefabs.Player,
+                        Material = ECharacterMaterials.Player,
+                        InitialWeapon = EWeapons.Stick,
                         MaxHealth = 20,
                         MovementSpeed = 2,
                     }
                 },
-                {ECharacter.EnemyFast, new CharacterConfigurationData()
+                {ECharacter.EnemyRed, new CharacterConfigurationData()
                     {
+                        Character = ECharacter.EnemyRed,
+                        Prefab = ECharacterPrefabs.Enemy,
+                        Material = ECharacterMaterials.Red,
                         MaxHealth = 1,
                         MovementSpeed = 2.1f,
                     }
                 },
-                {ECharacter.EnemyBig, new CharacterConfigurationData()
+                {ECharacter.EnemyGreen, new CharacterConfigurationData()
                     {
+                        Character = ECharacter.EnemyGreen,
+                        Prefab = ECharacterPrefabs.Enemy,
+                        Material = ECharacterMaterials.Green,
                         MaxHealth = 5,
                         MovementSpeed = 1.5f,
                     }
                 },
             };
-        }
-
-        public ICharacterConfigurationData GetCharacterConfiguration(ECharacter characterID)
-        {
-            if (!_characterToConfigurationData.TryGetValue(characterID, out var result))
-            {
-                Debug.LogError($"Trying to access data with wrong key! No data for the {characterID.ToString()} key");
-            }
-
-            return result;
         }
     }
 }

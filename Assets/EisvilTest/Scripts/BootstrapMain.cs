@@ -1,44 +1,72 @@
-using EisvilTest.Scripts.CharacterSystem;
-using EisvilTest.Scripts.Configuration.Characters;
-using EisvilTest.Scripts.Triggers;
+using EisvilTest.Scripts.Characters;
+using EisvilTest.Scripts.Configuration;
 using UnityEngine;
 using EisvilTest.Scripts.Configuration.Characters.CharactersData;
-using EisvilTest.Scripts.PlayerSystem;
+using EisvilTest.Scripts.Configuration.Quests;
+using EisvilTest.Scripts.Configuration.Weapon;
+using EisvilTest.Scripts.Controllers;
+using EisvilTest.Scripts.General;
+using EisvilTest.Scripts.Input;
+using EisvilTest.Scripts.Quests;
 
 namespace EisvilTest.Scripts
 {
     public class BootstrapMain : MonoBehaviour
     {
-        [SerializeField] private UniversalTrigger trigger;
-        [SerializeField] private PlayerPawn pawn;
-        private CharactersConfiguration _charactersConfiguration;
+        private ConfigurationBase<EWeapons, WeaponConfiguration> _weaponsConfiguration;
+        private ConfigurationBase<ECharacter, ICharacterConfigurationData> _charactersConfiguration;
         private ICharacterController _characterController;
+        [SerializeField] private Vector3 _playerSpawnPosition;
+
+        private Character character;
+        private CameraController _mainCamera;
+        private CharactersSystem _charactersSystem;
+        private QuestSystem _questSystem;
 
         private void Awake()
         {
-            // initialization here
-            int mask = LayerMask.GetMask("Player");
-            trigger.AddActionToBoth(OnUniversalTriggerEnter, OnUniversalTriggerExit, mask);
+            _charactersConfiguration = CompositionRoot.GetCharactersConfiguration();
+            _weaponsConfiguration = CompositionRoot.GetWeaponsConfiguration();
+            _charactersSystem = CompositionRoot.GetCharactersSystem();
+            _mainCamera = CompositionRoot.GetMainCamera();
+            _questSystem = CompositionRoot.GetQuestsSystem();
+            
+            CreateAndSetupPlayer();
+            SpawnEnemies();
         }
 
         private void Start()
         {
-            _charactersConfiguration = new CharactersConfiguration();
-            var characterControllerPC = new GameObject("CharacterController").AddComponent<CharacterControllerPC>();
-            characterControllerPC.SetPlayerControls(new PlayerControls());
-            _characterController = characterControllerPC;
-            Character character = new Character(_charactersConfiguration.GetCharacterConfiguration(ECharacter.Player), pawn, null);
-            _characterController.SetControllable(character);
+            _questSystem.StartQuest(character, EQuests.Kill10RedEnemies);
+            _questSystem.StartQuest(character, EQuests.Kill10AnyEnemies);
+            _questSystem.StartQuest(character, EQuests.Spend2MinutesInGame);
         }
 
-        private void OnUniversalTriggerEnter(GameObject obj)
+        private void CreateAndSetupPlayer()
         {
-            Debug.Log("Enter");
+            InputCreator.CreateBoundedInstances(out var setter, out var getter);
+
+#if UNITY_STANDALONE || UNITY_EDITOR
+            var characterControllerPC = new GameObject("CharacterController").AddComponent<CharacterControllerPC>();
+            characterControllerPC.Init(new PlayerControls(), setter);
+#endif
+
+            character = _charactersSystem.CreateCharacter(ECharacter.Player);
+            character.SetInput(getter);
+            character.SetPosition(_playerSpawnPosition);
+            character.SetOrientationCamera(_mainCamera.CameraMain);
+            _mainCamera.SetTarget(character.transform);
         }
-        
-        private void OnUniversalTriggerExit(GameObject obj)
+
+        private void SpawnEnemies()
         {
-            Debug.Log("Exit");
+            for (var i = -7; i < 8; i++)
+            {
+                var enemy = _charactersSystem.CreateCharacter(ECharacter.EnemyRed);
+                enemy.SetPosition(_playerSpawnPosition + new Vector3(4f, 0, i * 2f));
+                var anotherEnemy = _charactersSystem.CreateCharacter(ECharacter.EnemyGreen);
+                anotherEnemy.SetPosition(_playerSpawnPosition + new Vector3(-4f, 0, i * 2f));
+            }
         }
     }
 }

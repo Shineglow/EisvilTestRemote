@@ -2,8 +2,9 @@ namespace EisvilTest.Scripts.Configuration.Characters.CharactersData
 {
     public enum ECharacter
     {
+        Any,
         Player,
-        EnemyBig,
-        EnemyFast,
+        EnemyGreen,
+        EnemyRed,
     }
 }
