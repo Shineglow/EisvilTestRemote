@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2041494381110061514}
   - component: {fileID: 2905661698341576456}
-  m_Layer: 3
+  m_Layer: 7
   m_Name: WeaponKeeper
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -61,7 +61,7 @@ GameObject:
   - component: {fileID: 4871873423309767953}
   - component: {fileID: 2387035374780476243}
   - component: {fileID: 2148576694399494840}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -175,6 +175,9 @@ MonoBehaviour:
   _movableComponent: {fileID: 2387035374780476243}
   _weaponKeeperComponent: {fileID: 2905661698341576456}
   _damageableComponent: {fileID: 2148576694399494840}
+  _characterProperties:
+    <Health>k__BackingField:
+      _value: 0
 --- !u!114 &2387035374780476243
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -209,7 +212,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2026635907161403853}
-  m_Layer: 3
+  m_Layer: 7
   m_Name: DistantPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}

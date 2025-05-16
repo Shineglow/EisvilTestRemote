@@ -1,6 +1,7 @@
 using EisvilTest.Scripts.Characters;
 using EisvilTest.Scripts.Configuration.Characters.CharactersData;
 using EisvilTest.Scripts.Configuration.Weapon;
+using EisvilTest.Scripts.ResourcesManagement.Enums;
 
 namespace EisvilTest.Scripts.Configuration.Characters
 {
@@ -14,6 +15,7 @@ namespace EisvilTest.Scripts.Configuration.Characters
                     {
                         Character = ECharacter.Player,
                         Prefab = ECharacterPrefabs.Player,
+                        Material = ECharacterMaterials.Player,
                         InitialWeapon = EWeapons.Stick,
                         MaxHealth = 20,
                         MovementSpeed = 2,
@@ -23,6 +25,7 @@ namespace EisvilTest.Scripts.Configuration.Characters
                     {
                         Character = ECharacter.EnemyRed,
                         Prefab = ECharacterPrefabs.Enemy,
+                        Material = ECharacterMaterials.Red,
                         MaxHealth = 1,
                         MovementSpeed = 2.1f,
                     }
@@ -31,6 +34,7 @@ namespace EisvilTest.Scripts.Configuration.Characters
                     {
                         Character = ECharacter.EnemyGreen,
                         Prefab = ECharacterPrefabs.Enemy,
+                        Material = ECharacterMaterials.Green,
                         MaxHealth = 5,
                         MovementSpeed = 1.5f,
                     }

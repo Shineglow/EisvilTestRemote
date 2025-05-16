@@ -1,6 +1,13 @@
-public class CharacterProperties : ICharacterProperties
-{
-    public ObservableValue<float> Health { get; } = new ObservableValue<float>();
+using System;
+using UnityEngine;
 
-    IObservableValueReadOnly<float> ICharacterProperties.Health => Health;
+namespace EisvilTest.Scripts.Characters.CharacterProperties
+{
+    [Serializable]
+    public class CharacterProperties : ICharacterProperties
+    {
+        [field: SerializeField] public ObservableValue<float> Health { get; private set; } = new ObservableValue<float>();
+
+        IObservableValueReadOnly<float> ICharacterProperties.Health => Health;
+    }
 }

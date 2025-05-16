@@ -3,7 +3,9 @@ using EisvilTest.Scripts.Configuration;
 using EisvilTest.Scripts.Configuration.Characters;
 using EisvilTest.Scripts.Configuration.Characters.CharactersData;
 using EisvilTest.Scripts.Configuration.Weapon;
+using EisvilTest.Scripts.General;
 using EisvilTest.Scripts.ResourcesManagement;
+using EisvilTest.Scripts.ResourcesManagement.Enums;
 using EisvilTest.Scripts.Weapon;
 using UnityEngine;
 
@@ -14,6 +16,7 @@ namespace EisvilTest.Scripts
         private static ResourceManager ResourceManager;
         private static CharactersSystem CharactersSystem;
         private static WeaponSystem WeaponSystem;
+        private static CameraController MainCamera;
         
         private static ConfigurationBase<EWeapons, WeaponConfiguration> WeaponsConfiguration;
         private static ConfigurationBase<ECharacter, ICharacterConfigurationData> CharactersConfiguration;
@@ -36,6 +39,12 @@ namespace EisvilTest.Scripts
         public static WeaponSystem GetWeaponSystem()
         {
             return WeaponSystem ??= new WeaponSystem();
+        }
+
+        public static CameraController GetMainCamera()
+        {
+            return MainCamera ??= GetResourceManager()
+                .CreatePrefabInstance<CameraController, EGeneralPrefabs>(EGeneralPrefabs.MainCamera);
         }
 
         public static ConfigurationBase<EWeapons, WeaponConfiguration> GetWeaponsConfiguration()

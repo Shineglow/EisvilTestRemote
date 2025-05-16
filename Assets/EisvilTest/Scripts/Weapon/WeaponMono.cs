@@ -6,7 +6,7 @@ namespace EisvilTest.Scripts.Weapon
     [RequireComponent(typeof(Collider))]
     public class WeaponMono : MonoBehaviour
     {
-        [SerializeField] private Collider collider;
+        [SerializeField] private new Collider collider;
 
         public event Action<GameObject> WeaponHitTarget;
 

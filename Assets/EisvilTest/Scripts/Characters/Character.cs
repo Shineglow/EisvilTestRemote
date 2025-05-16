@@ -15,7 +15,7 @@ namespace EisvilTest.Scripts.Characters
         [SerializeField] private WeaponKeeperComponent _weaponKeeperComponent;
         [SerializeField] private DamageableComponent _damageableComponent;
         
-        private readonly CharacterProperties _characterProperties = new();
+        [SerializeField] private CharacterProperties.CharacterProperties _characterProperties = new();
         public ICharacterProperties CharacterProperties => _characterProperties;
 
         private ICharacterConfigurationData _characterConfiguration;
@@ -23,6 +23,7 @@ namespace EisvilTest.Scripts.Characters
         private IWeaponLogic _weapon;
         private WeaponConfiguration _weaponConfiguration;
         private Camera _camera;
+        private MeshRenderer _meshRenderer;
 
         public ECharacter CharacterType => _characterConfiguration.Character;
         public event Action<Character> CharacterDied;
@@ -30,6 +31,7 @@ namespace EisvilTest.Scripts.Characters
         private void Awake()
         {
             _damageableComponent.DamageInflicted += OnDamageInflicted;
+            _meshRenderer = GetComponent<MeshRenderer>();
         }
 
         private void OnDamageInflicted(float damage)
@@ -41,15 +43,21 @@ namespace EisvilTest.Scripts.Characters
             }
         }
 
-        public void Init(ICharacterConfigurationData characterConfiguration)
+        public void Init(ICharacterConfigurationData characterConfiguration, Material initialMaterial)
         {
             _characterConfiguration = characterConfiguration;
-            _camera = Camera.main;
+            _characterProperties.Health.Value = characterConfiguration.MaxHealth;
+            _meshRenderer.material = initialMaterial;
         }
 
         public void SetInput(IInputAbstraction input)
         {
             _input = input;
+        }
+
+        public void SetOrientationCamera(Camera orientationCamera)
+        {
+            _camera = orientationCamera;
         }
 
         public void SetWeapon(IWeaponLogic weapon, WeaponConfiguration configuration, Func<Transform, Transform, Transform, CancellationToken, UniTask> animationFunction)
@@ -108,6 +116,11 @@ namespace EisvilTest.Scripts.Characters
                 Quaternion targetRotation = Quaternion.LookRotation(direction);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
             }
+        }
+
+        public void SetPosition(Vector3 newPosition)
+        {
+            _movableComponent.SetPosition(newPosition);
         }
 
         public void Disable()

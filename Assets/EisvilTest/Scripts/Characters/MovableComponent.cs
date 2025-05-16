@@ -22,5 +22,12 @@ namespace EisvilTest.Scripts.Characters
             _characterController.SimpleMove(_speed);
             _speed = Vector3.zero;
         }
+
+        public void SetPosition(Vector3 newPosition)
+        {
+            _characterController.enabled = false;
+            transform.position = newPosition;
+            _characterController.enabled = true;
+        }
     }
 }

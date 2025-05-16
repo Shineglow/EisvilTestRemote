@@ -1,69 +1,61 @@
 using EisvilTest.Scripts.Characters;
-using EisvilTest.Scripts.Configuration.Characters;
+using EisvilTest.Scripts.Configuration;
 using UnityEngine;
 using EisvilTest.Scripts.Configuration.Characters.CharactersData;
 using EisvilTest.Scripts.Configuration.Weapon;
 using EisvilTest.Scripts.Controllers;
+using EisvilTest.Scripts.General;
 using EisvilTest.Scripts.Input;
-using EisvilTest.Scripts.Weapon;
 
 namespace EisvilTest.Scripts
 {
     public class BootstrapMain : MonoBehaviour
     {
-        private CharactersConfiguration _charactersConfiguration;
+        private ConfigurationBase<EWeapons, WeaponConfiguration> _weaponsConfiguration;
+        private ConfigurationBase<ECharacter, ICharacterConfigurationData> _charactersConfiguration;
         private ICharacterController _characterController;
         [SerializeField] private Vector3 _playerSpawnPosition;
 
-        [SerializeField] private Character character;
-        [SerializeField] private WeaponMono _weaponMono;
-        private WeaponsConfiguration _weaponsConfiguration;
+        private Character character;
+        private CameraController _mainCamera;
+        private CharactersSystem _charactersSystem;
 
         private void Start()
         {
-            _charactersConfiguration = new CharactersConfiguration();
-            _weaponsConfiguration = new WeaponsConfiguration();
-            var characterControllerPC = new GameObject("CharacterController").AddComponent<CharacterControllerPC>();
+            _charactersConfiguration = CompositionRoot.GetCharactersConfiguration();
+            _weaponsConfiguration = CompositionRoot.GetWeaponsConfiguration();
+            _charactersSystem = CompositionRoot.GetCharactersSystem();
+            _mainCamera = CompositionRoot.GetMainCamera();
             
-            InputCreator.CreateBoundedInstances(out var setter, out var getter);
-            characterControllerPC.Init(new PlayerControls(), setter);
-            character = CompositionRoot.GetCharactersSystem().CreateCharacter(ECharacter.Player);
-            character.SetInput(getter);
-            character.transform.position = _playerSpawnPosition;
-            // character.Init(_charactersConfiguration.GetData(ECharacter.Player));
-            // character.SetInput(getter);
-            // var weaponConfiguration = _weaponsConfiguration.GetData(EWeapons.Stick);
-            // WeaponLogic weapon = new WeaponLogic(_weaponMono, weaponConfiguration);
-            // character.SetWeapon(weapon, weaponConfiguration,
-            //     async (weaponKeeper, distantPoint, self, token) =>
-            //     {
-            //         float hitAngle = 90f;
-            //         float angleTraveled = 0f;
-            //         float anglePerSecond = hitAngle / weaponConfiguration.AttackTime;
-            //         float startAngleY = weaponKeeper.localEulerAngles.y;
-            //
-            //         while (angleTraveled < hitAngle)
-            //         {
-            //             token.ThrowIfCancellationRequested();
-            //
-            //             float step = anglePerSecond * Time.deltaTime;
-            //             step = Mathf.Min(step, hitAngle - angleTraveled);
-            //             angleTraveled += step;
-            //             weaponKeeper.localRotation = Quaternion.Euler(0f, startAngleY - angleTraveled, 0f);
-            //
-            //             await UniTask.Yield();
-            //         }
-            //     });
+            CreateAndSetupPlayer();
+            SpawnEnemies();
         }
 
-        private void OnUniversalTriggerEnter(GameObject obj)
+        private void CreateAndSetupPlayer()
         {
-            Debug.Log("Enter");
+            InputCreator.CreateBoundedInstances(out var setter, out var getter);
+
+#if UNITY_STANDALONE || UNITY_EDITOR
+            var characterControllerPC = new GameObject("CharacterController").AddComponent<CharacterControllerPC>();
+            characterControllerPC.Init(new PlayerControls(), setter);
+#endif
+
+            character = _charactersSystem.CreateCharacter(ECharacter.Player);
+            character.SetInput(getter);
+            character.SetPosition(_playerSpawnPosition);
+            character.SetOrientationCamera(_mainCamera.CameraMain);
+            _mainCamera.SetTarget(character.transform);
         }
-        
-        private void OnUniversalTriggerExit(GameObject obj)
+
+        private void SpawnEnemies()
         {
-            Debug.Log("Exit");
+            for (var i = -7; i < 8; i++)
+            {
+                var enemy = _charactersSystem.CreateCharacter(ECharacter.EnemyRed);
+                enemy.SetPosition(_playerSpawnPosition + new Vector3(4f, 0, i * 2f));
+                var anotherEnemy = _charactersSystem.CreateCharacter(ECharacter.EnemyGreen);
+                anotherEnemy.SetPosition(_playerSpawnPosition + new Vector3(-4f, 0, i * 2f));
+            }
         }
     }
 }

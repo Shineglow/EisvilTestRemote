@@ -4,7 +4,9 @@ using EisvilTest.Scripts.Configuration;
 using EisvilTest.Scripts.Configuration.Characters.CharactersData;
 using EisvilTest.Scripts.Configuration.Weapon;
 using EisvilTest.Scripts.ResourcesManagement;
+using EisvilTest.Scripts.ResourcesManagement.Enums;
 using EisvilTest.Scripts.Weapon;
+using UnityEngine;
 
 namespace EisvilTest.Scripts.Characters
 {
@@ -55,7 +57,7 @@ namespace EisvilTest.Scripts.Characters
                 characterInstance = _resourceManager.CreatePrefabInstance<Character, ECharacterPrefabs>(characterConfiguration.Prefab);
                 active.Add(characterInstance);
             }
-            characterInstance.Init(characterConfiguration);
+            characterInstance.Init(characterConfiguration, _resourceManager.GetAsset<Material, ECharacterMaterials>(characterConfiguration.Material));
             
             #endregion
 
