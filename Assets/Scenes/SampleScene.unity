@@ -152,8 +152,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerSpawnPosition: {x: 0, y: 0, z: 0}
-  character: {fileID: 0}
-  _weaponMono: {fileID: 0}
 --- !u!4 &215593317
 Transform:
   m_ObjectHideFlags: 0

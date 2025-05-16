@@ -1,11 +1,14 @@
+using System;
 using EisvilTest.Scripts.Characters;
 using EisvilTest.Scripts.Configuration;
 using UnityEngine;
 using EisvilTest.Scripts.Configuration.Characters.CharactersData;
+using EisvilTest.Scripts.Configuration.Quests;
 using EisvilTest.Scripts.Configuration.Weapon;
 using EisvilTest.Scripts.Controllers;
 using EisvilTest.Scripts.General;
 using EisvilTest.Scripts.Input;
+using EisvilTest.Scripts.Quests;
 
 namespace EisvilTest.Scripts
 {
@@ -19,16 +22,23 @@ namespace EisvilTest.Scripts
         private Character character;
         private CameraController _mainCamera;
         private CharactersSystem _charactersSystem;
+        private QuestSystem _questSystem;
 
-        private void Start()
+        private void Awake()
         {
             _charactersConfiguration = CompositionRoot.GetCharactersConfiguration();
             _weaponsConfiguration = CompositionRoot.GetWeaponsConfiguration();
             _charactersSystem = CompositionRoot.GetCharactersSystem();
             _mainCamera = CompositionRoot.GetMainCamera();
+            _questSystem = CompositionRoot.GetQuestsSystem();
             
             CreateAndSetupPlayer();
             SpawnEnemies();
+        }
+
+        private void Start()
+        {
+            _questSystem.StartQuest(character, EQuests.Kill10RedEnemies);
         }
 
         private void CreateAndSetupPlayer()
